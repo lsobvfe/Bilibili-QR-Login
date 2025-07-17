@@ -39,7 +39,7 @@ def login_qrcode(request):
 
 def poll_login_status(qrcode_key):
     """轮询扫码状态"""
-    max_attempts = 60  # 最多尝试60次，每次3秒，共3分钟
+    max_attempts = 180  # 最多尝试180次，每次1秒，共3分钟
     attempt = 0
     
     while attempt < max_attempts:
@@ -66,7 +66,7 @@ def poll_login_status(qrcode_key):
             print("二维码已扫描，等待确认")
         
         # 等待3秒后再次查询
-        time.sleep(3)
+        time.sleep(1)
         attempt += 1
     
     if attempt >= max_attempts:
