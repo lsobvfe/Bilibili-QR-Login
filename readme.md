@@ -1,6 +1,8 @@
 # B站登录模块 (bilibili_login)
 
-这是一个用于处理B站登录的Django应用，提供了扫码登录功能，可以在需要B站登录的地方使用。
+这是一个通过客户端扫码获取Bilibili Cookie的Django模块，可以在需要B站Cookie的地方使用
+
+![image-20250717203658844](.\image-20250717203658844.png)
 
 ## 功能特点
 
@@ -10,6 +12,65 @@
 - 保存登录Cookie
 - 提供登录状态检查的装饰器
 - 提供命令行工具检查登录状态
+
+## 功能的具体说明
+
+### 1. 检查登录状态
+
+在需要B站登录的视图函数中使用`@bilibili_login_required`装饰器：
+
+```python
+from bilibili_login.decorators import bilibili_login_required
+
+@bilibili_login_required
+def your_view(request):
+    # 你的视图函数代码
+    pass
+```
+
+### 2. 命令行检查登录状态
+
+使用以下命令检查B站登录状态，如果过期则自动启动登录流程：
+
+```bash
+python manage.py check_bilibili_login
+```
+
+### 3. API接口
+
+模块提供了以下API接口：
+
+- 检查登录状态: `GET /bilibili/status/`
+- 生成登录二维码: `GET /bilibili/qrcode/`
+- 轮询扫码状态: `GET /bilibili/poll/?qrcode_key=xxx`
+
+### 4. 在代码中使用
+
+```python
+from bilibili_login.utils import BilibiliLogin
+from bilibili_login.cookie_storage import get_cookie
+
+# 检查登录状态
+is_expired = BilibiliLogin.check_cookie_expired()
+
+# 获取Cookie
+cookie = get_cookie()
+
+# 如果需要手动登录
+if is_expired:
+    # 申请二维码
+    qrcode_key, qrcode_url, error = BilibiliLogin.generate_qrcode()
+    
+    # 显示二维码
+    BilibiliLogin.show_qrcode_in_browser(qrcode_url)
+    
+    # 轮询扫码状态
+    scan_code, cookies, message = BilibiliLogin.poll_qrcode_status(qrcode_key)
+    
+    # 保存Cookie
+    if cookies:
+        BilibiliLogin.save_cookies(cookies)
+```
 
 ## 目录结构
 
@@ -74,65 +135,6 @@ Pillow (PIL)
 pip install Pillow
 ```
 
-## 使用方法
-
-### 1. 检查登录状态
-
-在需要B站登录的视图函数中使用`@bilibili_login_required`装饰器：
-
-```python
-from bilibili_login.decorators import bilibili_login_required
-
-@bilibili_login_required
-def your_view(request):
-    # 你的视图函数代码
-    pass
-```
-
-### 2. 命令行检查登录状态
-
-使用以下命令检查B站登录状态，如果过期则自动启动登录流程：
-
-```bash
-python manage.py check_bilibili_login
-```
-
-### 3. API接口
-
-模块提供了以下API接口：
-
-- 检查登录状态: `GET /bilibili/status/`
-- 生成登录二维码: `GET /bilibili/qrcode/`
-- 轮询扫码状态: `GET /bilibili/poll/?qrcode_key=xxx`
-
-### 4. 在代码中使用
-
-```python
-from bilibili_login.utils import BilibiliLogin
-from bilibili_login.cookie_storage import get_cookie
-
-# 检查登录状态
-is_expired = BilibiliLogin.check_cookie_expired()
-
-# 获取Cookie
-cookie = get_cookie()
-
-# 如果需要手动登录
-if is_expired:
-    # 申请二维码
-    qrcode_key, qrcode_url, error = BilibiliLogin.generate_qrcode()
-    
-    # 显示二维码
-    BilibiliLogin.show_qrcode_in_browser(qrcode_url)
-    
-    # 轮询扫码状态
-    scan_code, cookies, message = BilibiliLogin.poll_qrcode_status(qrcode_key)
-    
-    # 保存Cookie
-    if cookies:
-        BilibiliLogin.save_cookies(cookies)
-```
-
 ## 文件说明
 
 ### cookie_storage.py
@@ -192,10 +194,5 @@ python manage.py check_bilibili_login
 2. 二维码有效期为3分钟，请在生成后尽快扫描。
 3. 登录成功后，Cookie默认有效期为180天。
 
-## 依赖项
 
-- Django
-- requests
-- qrcode
-- Pillow (PIL)
 
