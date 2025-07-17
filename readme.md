@@ -2,7 +2,7 @@
 
 这是一个通过客户端扫码获取Bilibili Cookie的Django模块，可以在需要B站Cookie的地方使用
 
-![image-20250717203658844](.\image-20250717203658844.png)
+![image-20250717203658844](/image-20250717203658844.png)
 
 ## 功能特点
 
@@ -13,7 +13,7 @@
 - 提供登录状态检查的装饰器
 - 提供命令行工具检查登录状态
 
-## 功能的具体说明
+## 功能具体说明
 
 ### 1. 检查登录状态
 
@@ -70,6 +70,22 @@ if is_expired:
     # 保存Cookie
     if cookies:
         BilibiliLogin.save_cookies(cookies)
+```
+
+### 5. Cookie的储存位置
+
+Cookie存储在`bilibili_login/data/bilibili_cookie.json`文件中，具体字段如下所示：
+```json
+{
+    "SESSDATA": "",
+    "bili_jct": "",
+    "DedeUserID": "",
+    "DedeUserID__ckMd5": "",
+    "sid": "",
+    "Expires": "0",
+    "gourl": "https%3A%2F%2Fwww.bilibili.com",
+    "first_domain": ".bilibili.com"
+}
 ```
 
 ## 目录结构
